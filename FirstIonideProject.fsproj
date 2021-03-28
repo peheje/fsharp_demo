@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include=".editorconfig" />
+    <Compile Include="Demo.fsx" />
+    <Compile Include="Demo2.fsx" />
+    <Compile Include="Demo3.fsx" />
+    <Compile Include="Demo4.fsx" />
+    <Compile Include="Demo5.fsx" />
+    <Compile Include="Demo6.fsx" />
+    <Compile Include="Demo7.fsx" />
+    <Compile Include="Demo8.fsx" />
+    <Compile Include="Demo9.fsx" />
+    <Compile Include="Demo10.fsx" />
+    <Compile Include="Demo11.fsx" />
+    <Compile Include="Exercise1.fsx" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+</Project>
