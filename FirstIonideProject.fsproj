@@ -18,6 +18,7 @@
     <Compile Include="Demo11.fsx" />
     <Compile Include="Demo12.fsx" />
     <Compile Include="Demo13.fsx" />
+    <Compile Include="Demo14.fsx" />
     <Compile Include="Exercise1.fsx" />
     <Compile Include="Program.fs" />
   </ItemGroup>
