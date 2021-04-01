@@ -4,8 +4,7 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include=".editorconfig" />
-    <Compile Include="Demo.fsx" />
+    <!-- <Compile Include="Demo.fsx" />
     <Compile Include="Demo2.fsx" />
     <Compile Include="Demo3.fsx" />
     <Compile Include="Demo4.fsx" />
@@ -18,8 +17,9 @@
     <Compile Include="Demo11.fsx" />
     <Compile Include="Demo12.fsx" />
     <Compile Include="Demo13.fsx" />
-    <Compile Include="Demo14.fsx" />
     <Compile Include="Exercise1.fsx" />
+    <Compile Include="Demo14.fsx" />
+    <Compile Include="Demo15.fsx" /> -->
     <Compile Include="Program.fs" />
   </ItemGroup>
 </Project>

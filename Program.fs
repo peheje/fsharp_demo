@@ -1,46 +1,77 @@
 namespace someNamespace
 
 module MyModule =
+    open System
 
-    let strToInt (str:string) =
-        match System.Int32.TryParse str with
-        | true, value -> Some(value)
-        | _ -> None
+    let booth (xs: float array) =
+        let x0 = xs.[0]
+        let x1 = xs.[1]
+        let t1 = Math.Pow(x0 + 2.0 * x1 - 7.0, 2.0)
+        let t2 = Math.Pow(2.0 * x0 + x1 - 5.0, 2.0)
+        t1 + t2
 
-    type MaybeBuilder() =
-        member this.Bind(m, f) = Option.bind f m
-        member this.Return(x) = Some x
+    let value = booth [| -2.12; -4.39 |]
+    printfn "value: %f" value
 
-    let maybe = new MaybeBuilder()
+    let logCsv = false
+    let print = 1000
+    let optimizer = booth
+    let parameters = 2
+    let (boundMin, boundMax) = (-10.0, 10.0)
+    let generations = 1000
+    let popsize = 50
+    let (mutateMin, mutateMax) = (0.2, 0.95)
+    let (crossoverMin, crossoverMax) = (0.1, 1.0)
 
-    let stringAddWorkflow x y z =
-        maybe {
-            let! a = strToInt x
-            let! b = strToInt y
-            let! c = strToInt z
-            return a + b + c
-        }
+    let random = Random(42)
 
-    let strAdd str i =
-        match strToInt str with
-        | None -> None
-        | Some x -> Some(x + i)
+    let rand min max () = random.NextDouble() * (max - min) + min
+    let rand01 = rand 0.0 1.0
+    let randBounds = rand boundMin boundMax
+    let randCrossover = rand crossoverMin crossoverMax
+    let randMutate = rand mutateMin mutateMax
 
+    let sample (array: _ array) = array.[random.Next(0, array.Length)]
+    let clamp value = Math.Clamp(value, boundMin, boundMax)
 
-    let (>>=) m f =
-        match m with
-        | None -> None
-        | Some x -> f x
+    let mutable crossover = 0.9
+    let mutable mutate = 0.4
 
-    // let (>>=) m f = Option.bind f m
-
-
-// strToInt result are parsed with >>= which see if it's none and then does not call the next expression, but if it's some it calls it, which is strAdd so strAdd knows that parameter "i" IS an integer, but it does not know if str is parsable so we call strToInt and match on that.
-
+    let mutable trial = Array.zeroCreate<float> parameters
+    let mutable pop =
+        Array.init popsize (fun _ -> Array.init parameters (fun _ -> randBounds ()))
+    let mutable scores = pop |> Array.map optimizer
 
     [<EntryPoint>]
     let main argv =
-        let hue = None >>= strAdd "2"
+        for g in 0 .. generations - 1 do
+            crossover <- randCrossover ()
+            mutate <- randMutate ()
 
-        printfn "done"
+            for i in 0 .. popsize - 1 do
+                let x0 = sample pop
+                let x1 = sample pop
+                let x2 = sample pop
+                let xt = pop.[i]
+
+                for j in 0 .. parameters - 1 do
+                    if rand01 () < crossover then
+                        trial.[j] <- clamp (x0.[j] + (x1.[j] - x2.[j]) * mutate)
+                    else
+                        trial.[j] <- xt.[j]
+
+                let scoreTrial = optimizer trial
+
+                if scoreTrial < scores.[i] then
+                    pop.[i] <- trial |> Array.copy
+                    scores.[i] <- scoreTrial
+
+                if g % print = 0 || g = generations - 1 then
+                    let bestIndex =
+                        scores |> Array.indexed |> Array.minBy snd |> fst
+
+                    printfn "generation %i" g
+                    printfn "generation best %A" pop.[bestIndex]
+                    printfn "generation best score %f" scores.[bestIndex]
+
         0
