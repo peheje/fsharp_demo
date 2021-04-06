@@ -1,7 +1,8 @@
 namespace someNamespace
 
-module MyModule =
+module Genetic =
     open System
+    open System.Diagnostics
 
     let booth (xs: float array) =
         let x0 = xs.[0]
@@ -10,20 +11,20 @@ module MyModule =
         let t2 = Math.Pow(2.0 * x0 + x1 - 5.0, 2.0)
         t1 + t2
 
-    let value = booth [| -2.12; -4.39 |]
-    printfn "value: %f" value
+    let f1 (xs: float array) =
+        xs |> Array.sumBy (fun v -> v * v) // f1(0) = 0
 
     let logCsv = false
-    let print = 1000
-    let optimizer = booth
-    let parameters = 2
+    let print = 5000
+    let optimizer = f1
+    let parameters = 300
     let (boundMin, boundMax) = (-10.0, 10.0)
-    let generations = 1000
-    let popsize = 50
+    let generations = 10000
+    let popsize = 500
     let (mutateMin, mutateMax) = (0.2, 0.95)
     let (crossoverMin, crossoverMax) = (0.1, 1.0)
 
-    let random = Random(42)
+    let random = Random()
 
     let rand min max () = random.NextDouble() * (max - min) + min
     let rand01 = rand 0.0 1.0
@@ -34,19 +35,17 @@ module MyModule =
     let sample (array: _ array) = array.[random.Next(0, array.Length)]
     let clamp value = Math.Clamp(value, boundMin, boundMax)
 
-    let mutable crossover = 0.9
-    let mutable mutate = 0.4
-
     let mutable trial = Array.zeroCreate<float> parameters
-    let mutable pop =
-        Array.init popsize (fun _ -> Array.init parameters (fun _ -> randBounds ()))
+    let mutable pop = Array.init popsize (fun _ -> Array.init parameters (fun _ -> randBounds ()))
     let mutable scores = pop |> Array.map optimizer
 
     [<EntryPoint>]
     let main argv =
+
+        let sw = Stopwatch.StartNew ()
         for g in 0 .. generations - 1 do
-            crossover <- randCrossover ()
-            mutate <- randMutate ()
+            let crossover = randCrossover ()
+            let mutate = randMutate ()
 
             for i in 0 .. popsize - 1 do
                 let x0 = sample pop
@@ -66,12 +65,14 @@ module MyModule =
                     pop.[i] <- trial |> Array.copy
                     scores.[i] <- scoreTrial
 
-                if g % print = 0 || g = generations - 1 then
-                    let bestIndex =
-                        scores |> Array.indexed |> Array.minBy snd |> fst
+            if g % print = 0 || g = generations - 1 then
+                let bestIndex = scores |> Array.indexed |> Array.minBy snd |> fst
+                printfn "generation %i" g
+                printfn "generation mean %f" (scores |> Array.average)
+                printfn "generation best %f" scores.[bestIndex]
 
-                    printfn "generation %i" g
-                    printfn "generation best %A" pop.[bestIndex]
-                    printfn "generation best score %f" scores.[bestIndex]
+        let bestIndex = scores |> Array.indexed |> Array.minBy snd |> fst
+        printfn "generation best score %f" scores.[bestIndex]
+        printfn "time taken: %i" sw.ElapsedMilliseconds
 
         0
