@@ -1,6 +1,6 @@
 open System
 
-// So the objective is to call do1 and if that has a value pass it to do2 and if that has a value to do3 and then return it. But the do functions can fail and instead return None, so they return Option
+// So the objective is to call three functions in a row, each passing the result from the previous to the next. But the functions can sometimes return None, in which case we want to stop the chain of calls. This result type is called option in F# which can be Some or None. All the flows in the following code do the same thing.
 
 let random = Random()
 let heads () = random.NextDouble() < 0.5
@@ -71,3 +71,10 @@ printfn "flow4: %A" (flow4 ())
 // So the option of do1 becomes the first argument of -?> and the function do2 is the second
 // The ouput of providing that to -?> is another option which is then passed to do3
 
+// The bind parameter is already implemented in F# as Option.bind
+
+let flow5 () =
+    let d3 = do1 () |> Option.bind do2 |> Option.bind do3
+    d3
+
+printfn "flow5: %A" (flow5 ())
