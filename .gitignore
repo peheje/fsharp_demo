@@ -1,3 +1,4 @@
 obj
 .ionide
 .fake
+.DS_Store

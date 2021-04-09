@@ -21,5 +21,6 @@
     <Compile Include="Demo14.fsx" />
     <Compile Include="Demo15.fsx" /> -->
     <Compile Include="Program.fs" />
+    <Compile Include="App.fsx" />
   </ItemGroup>
 </Project>
